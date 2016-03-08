@@ -1,17 +1,11 @@
-{
-  flex: 1;
-}
-
-.cell.alive {
+:host.cell.alive {
     background-color: red;
 }
 
-.cell:before {
-    content: "";
-    padding-top: 100%;
-    display: block;
-}
-
-.cell {
-    margin: 0.1%
+:host.cell {
+	display: inline-block;
+    width: 2px;
+    height: 2px;
+    line-height: 2px;
+    float: left;
 }

@@ -1,30 +1,43 @@
-var vdux = require('vdux')
+var conways = require('conways');
+var main = require('main-loop');
+var vdom = require('virtual-dom');
 
-var store = require('./store.js')(60)
-var actions = require('./actions.js')
-var board = require('./components/board.js')
+var Board = require('./components/board.js')
 
-var app = (state) => {
-  return board(state)
-}
-
-function spawnRandom () {
-  for (var i = 0, l = store.getState().length; i < l; i++) {
-    for (var j = 0; j < l; j++) {
-      if (Math.random() > 0.7) {
-        store.dispatch(actions.set({row: i, column: j}))
-      }
-    }
-  }
-}
-
-spawnRandom()
+const SIZE = 60;
 
 document.addEventListener('DOMContentLoaded', () => {
-  vdux(store, app, document.body)
-})
+	let initialState = conways.createBoard(SIZE)
+	for (var i = 0, l = initialState.length; i < l; i++) {
+	    for (var j = 0; j < l; j++) {
+	      initialState[i][j] = Math.random() > 0.3;
+	    }
+	}
+	const App = Board(initialState);
 
-function step () {
-  store.dispatch(actions.step())
-}
-setInterval(step, 100)
+	const loop = main( App.state(), Board.render, vdom);
+	document.body.appendChild(loop.target);
+
+
+	App.state(loop.update); //when App state changes, update loop
+
+	console.log( "begin" )
+	console.log( App.saveData( ) );
+
+	let test = 0;
+	let end = false;
+	let nextState = 0;
+	(function step(){
+	  nextState = conways.nextBoard( nextState || initialState );
+	  App.loadData( nextState ); 
+	  test++
+	  if(!end) setTimeout(step, 10);
+	  if(end){
+	  	console.log("end")
+		console.log( App.saveData( ) );
+	  }
+	})();
+
+	setTimeout( () => { console.log(test) }, 1000 * 10 );
+	setTimeout( () => { end = true }, 1000 * 10);
+})
